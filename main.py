@@ -7,7 +7,7 @@ import utility
 import argparse
 
 parser = argparse.ArgumentParser(prog="main.py")
-parser.add_argument("--mode", "-m", help="start or continue existing homework?")
+parser.add_argument("--mode", "-m", help="start or continue existing homework?")    
 parser.add_argument("--indexoffset", "-i", help="offset index of question to be answered")
 args = parser.parse_args()
 
@@ -17,7 +17,9 @@ username = "ethancingapagu"
 password = "fishnchips"
 schoolName = "brighton college abu dhabi"
 
-driver = webdriver.Chrome()
+options = Options()
+options.add_experimental_option("excludeSwitches", ["enable-logging"])
+driver = webdriver.Chrome(options=options)
 driver.get(url)
 time.sleep(1)
 
@@ -61,8 +63,9 @@ def openHw():
     homeworkAccordion = driver.find_elements(By.XPATH, "//span[contains(text(), 'Homework due Wednesday')]")[0]
     homeworkAccordion.click()
     time.sleep(5)
-    startBtn = driver.find_elements(By.XPATH, f"//div[contains(text(), '{str(args.mode).capitalize()}')]")[0 + int(args.indexoffset)]
-    startBtn.click()
+    startBtns = driver.find_elements(By.XPATH, f"//div[contains(text(), '{str(args.mode).capitalize()}')]")[0 + int(args.indexoffset)]
+    
+    startBtns.click()
     time.sleep(2)
 
 def screenshotQuestion():
@@ -113,6 +116,7 @@ def nextQuestion():
 
 def main():
     auth()
+    print(f"Logged in as {username}")
     openHw()
 
     numUnnatempted = len(driver.find_elements(By.CSS_SELECTOR, "a[class*='_Unattempted']")) + len(driver.find_elements(By.CSS_SELECTOR, "a[class*='Incorrect']"))
@@ -126,4 +130,5 @@ def main():
         time.sleep(1)
 
 main()
-time.sleep(122)
+
+x = input()
