@@ -21,6 +21,8 @@ driver = webdriver.Chrome()
 driver.get(url)
 time.sleep(1)
 
+ypixeloffset = 54 # because of the "Chrome is being controlled by automated test software." thing
+
 def auth():
     studentLogin = driver.find_element(By.LINK_TEXT, 'Student login')
     studentLogin.click()
@@ -52,6 +54,9 @@ def auth():
 
     time.sleep(7)
 
+    pag.hotkey("ctrl", "-")
+    pag.hotkey("ctrl", "-")
+
 def openHw():
     homeworkAccordion = driver.find_elements(By.XPATH, "//span[contains(text(), 'Homework due Wednesday')]")[0]
     homeworkAccordion.click()
@@ -61,20 +66,30 @@ def openHw():
     time.sleep(2)
 
 def screenshotQuestion():
-    utility.screenshot(100, 322, 880, 930)
+    utility.screenshot(100, 290, 880, 930)
 
+questionsCount = 0
 def pasteToGauth():
     pag.hotkey("ctrl", "shift", "n")
     time.sleep(0.2)
     pag.typewrite("https://www.gauthmath.com/")
     pag.press("enter")
     time.sleep(7)
-    pag.moveTo(610, 460)
+    pag.moveTo(550, 345 + ypixeloffset)
     pag.hotkey("ctrl", "v")
     
     time.sleep(11)
-    utility.screenshot(243, 522, 697, 952)
+
+    global questionsCount
+    if questionsCount < 1: 
+        pag.hotkey("ctrl", "-")
+        pag.hotkey("ctrl", "-")
+
+    for _ in range(7): pag.press("down")
+
     time.sleep(0.1)
+
+    questionsCount += 1
 
 qid = ""
 
@@ -83,7 +98,7 @@ def saveScreenshotFromGauth():
     global qid
     qid = qidEl.text
 
-    pag.screenshot(f"{qid}.png", [243, 522, 697, 952])
+    pag.screenshot(f"{qid}.png", region=(180, 165, 530, 790))
     time.sleep(2)
 
     pag.hotkey("alt", "tab")
