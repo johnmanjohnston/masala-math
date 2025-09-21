@@ -4,6 +4,12 @@ from selenium.webdriver.chrome.options import Options
 import pyautogui as pag
 import time
 import utility
+import argparse
+
+parser = argparse.ArgumentParser(prog="main.py")
+parser.add_argument("--mode", "-m", help="start or continue existing homework?")
+parser.add_argument("--indexoffset", "-i", help="offset index of question to be answered")
+args = parser.parse_args()
 
 url = "https://sparxmaths.uk/"
 
@@ -20,7 +26,7 @@ def auth():
     studentLogin.click()
     time.sleep(2)
 
-    pag.typewrite(schoolName, interval=0.02)
+    pag.typewrite(schoolName)
     time.sleep(0.1)
     pag.press("enter")
     time.sleep(0.2)
@@ -50,7 +56,7 @@ def openHw():
     homeworkAccordion = driver.find_elements(By.XPATH, "//span[contains(text(), 'Homework due Wednesday')]")[0]
     homeworkAccordion.click()
     time.sleep(5)
-    startBtn = driver.find_elements(By.XPATH, "//div[contains(text(), 'Start')]")[0]
+    startBtn = driver.find_elements(By.XPATH, f"//div[contains(text(), '{str(args.mode).capitalize()}')]")[0 + int(args.indexoffset)]
     startBtn.click()
     time.sleep(2)
 
@@ -90,14 +96,19 @@ def nextQuestion():
     parentEL = driver.find_elements(By.CSS_SELECTOR, "a[class^='_TaskItemLink']")[index+1]
     parentEL.click()
 
-auth()
-openHw()
+def main():
+    auth()
+    openHw()
 
-for i in range(3):
-    screenshotQuestion()
-    pasteToGauth()
-    saveScreenshotFromGauth()
-    nextQuestion()
-    time.sleep(1)
+    numUnnatempted = len(driver.find_elements(By.CSS_SELECTOR, "a[class*='_Unattempted']")) + len(driver.find_elements(By.CSS_SELECTOR, "a[class*='Incorrect']"))
+    print(f"{numUnnatempted=}")
 
+    for _ in range(numUnnatempted):
+        screenshotQuestion()
+        pasteToGauth()
+        saveScreenshotFromGauth()
+        nextQuestion()
+        time.sleep(1)
+
+main()
 time.sleep(122)
