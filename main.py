@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import pyautogui as pag
 import time
+import utility
 
 url = "https://sparxmaths.uk/"
 
@@ -12,50 +13,91 @@ schoolName = "brighton college abu dhabi"
 
 driver = webdriver.Chrome()
 driver.get(url)
-
 time.sleep(1)
 
-studentLogin = driver.find_element(By.LINK_TEXT, 'Student login')
-studentLogin.click()
-time.sleep(2)
+def auth():
+    studentLogin = driver.find_element(By.LINK_TEXT, 'Student login')
+    studentLogin.click()
+    time.sleep(2)
 
-pag.typewrite(schoolName, interval=0.02)
-pag.press("enter")
-pag.press("enter")
+    pag.typewrite(schoolName, interval=0.02)
+    time.sleep(0.1)
+    pag.press("enter")
+    time.sleep(0.2)
+    pag.press("enter")
+    time.sleep(0.1)
+    pag.press("enter")
 
-time.sleep(2)
-pag.press("enter")
-time.sleep(2)
-pag.press("enter")
+    time.sleep(3)
+    pag.press("enter")
+    time.sleep(2)
+    pag.press("enter")
 
-rejectCookies = driver.find_element(By.XPATH, "//div[@id='cookiescript_reject']")
-rejectCookies.click()
+    rejectCookies = driver.find_element(By.XPATH, "//div[@id='cookiescript_reject']")
+    rejectCookies.click()
 
-usernameField = driver.find_element(By.NAME, 'username')
-passwordField = driver.find_element(By.NAME, 'password')
+    usernameField = driver.find_element(By.NAME, 'username')
+    passwordField = driver.find_element(By.NAME, 'password')
 
-usernameField.send_keys(username)
-passwordField.send_keys(password)
+    usernameField.send_keys(username)
+    passwordField.send_keys(password)
 
-pag.press("enter")
+    pag.press("enter")
 
-time.sleep(7)
+    time.sleep(7)
 
-homeworkAccordion = driver.find_elements(By.XPATH, "//span[contains(text(), 'Homework due Wednesday')]")[0]
-homeworkAccordion.click()
-time.sleep(5)
-startBtn = driver.find_elements(By.XPATH, "//div[contains(text(), 'Start')]")[0]
-startBtn.click()
+def openHw():
+    homeworkAccordion = driver.find_elements(By.XPATH, "//span[contains(text(), 'Homework due Wednesday')]")[0]
+    homeworkAccordion.click()
+    time.sleep(5)
+    startBtn = driver.find_elements(By.XPATH, "//div[contains(text(), 'Start')]")[0]
+    startBtn.click()
+    time.sleep(2)
 
-time.sleep(2)
+def screenshotQuestion():
+    utility.screenshot(100, 322, 880, 930)
 
-pag.hotkey("win", "shift", "s")
-pag.moveTo(100, 322)
-time.sleep(0.1)
-pag.mouseDown()
-time.sleep(0.1)
-pag.moveTo(880, 930)
-time.sleep(0.1)
-pag.mouseUp()
+def pasteToGauth():
+    pag.hotkey("ctrl", "shift", "n")
+    time.sleep(0.2)
+    pag.typewrite("https://www.gauthmath.com/")
+    pag.press("enter")
+    time.sleep(7)
+    pag.moveTo(610, 460)
+    pag.hotkey("ctrl", "v")
+    
+    time.sleep(11)
+    utility.screenshot(243, 522, 697, 952)
+    time.sleep(0.1)
+
+qid = ""
+
+def saveScreenshotFromGauth():
+    qidEl = driver.find_element(By.CSS_SELECTOR, "a[class*='_Selected_']")
+    global qid
+    qid = qidEl.text
+
+    pag.screenshot(f"{qid}.png", [243, 522, 697, 952])
+    time.sleep(2)
+
+    pag.hotkey("alt", "tab")
+
+    time.sleep(0.5)
+
+def nextQuestion():
+    index = utility.letterToIndex(qid[1])
+    print(f"{index=}")
+    parentEL = driver.find_elements(By.CSS_SELECTOR, "a[class^='_TaskItemLink']")[index+1]
+    parentEL.click()
+
+auth()
+openHw()
+
+for i in range(3):
+    screenshotQuestion()
+    pasteToGauth()
+    saveScreenshotFromGauth()
+    nextQuestion()
+    time.sleep(1)
 
 time.sleep(122)
